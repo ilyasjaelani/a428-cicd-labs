@@ -13,10 +13,21 @@ node {
             sh './jenkins/scripts/test.sh'
         }
 
+        stage('Manual Approval') {
+            input message: 'Lanjutkan ke tahap Deploy?', ok: 'Proceed'
+        }
+
         stage('Deploy') {
-            sh './jenkins/scripts/deliver.sh' 
-            input message: 'Sudah selesai menggunakan React App? (Klik "Proceed" untuk mengakhiri)' 
-            sh './jenkins/scripts/kill.sh' 
-        }   
+            sh 'chmod +x ./jenkins/scripts/deliver.sh ./jenkins/scripts/kill.sh'
+
+            echo "Menjalankan React App..."
+            sh './jenkins/scripts/deliver.sh'
+
+            echo "Menjeda pipeline selama 1 menit agar React App dapat dicoba..."
+            sh 'sleep 60'
+
+            echo "Menghentikan React App..."
+            sh './jenkins/scripts/kill.sh'
+        } 
     }
 }
